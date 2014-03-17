@@ -11,6 +11,7 @@ class Author {
         if (!is_null(self::$_author)) {
             return self::$_author;
         }
+        echo "fdsfdsfsdgfsd \n\n";
         $mReturn = false;
         // Path to directory for author defenition
         $sPath = APPLICATION_PATH . DIRECTORY_SEPARATOR. 'protected' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'author' . DIRECTORY_SEPARATOR;
