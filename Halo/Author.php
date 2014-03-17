@@ -14,7 +14,6 @@ class Author {
         $mReturn = false;
         // Path to directory for author defenition
         $sPath = APPLICATION_PATH . DIRECTORY_SEPARATOR. 'protected' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'author' . DIRECTORY_SEPARATOR;
-
         $oDir = dir( $sPath );
         while (false !== ($sEntry = $oDir->read())) {
             if($sEntry != '.' && $sEntry != '..' && !is_dir($sPath.$sEntry)) {
