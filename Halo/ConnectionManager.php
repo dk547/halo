@@ -15,9 +15,10 @@ class ConnectionManager extends CComponent
     public function init(){}
 
     /**
-     * Получение коннекта по имени сервера (сервер должен быть указан в конфигах)
+     * Get connection to sql server with caching
+     *
      * @param string $server_name connection params will be get from config by server name
-     * @param bool|string $user имя пользователя для соединения. Если не указано, то автоматически
+     * @param bool|string $user connection username, automatic if empty
      * @param bool|string $passwd Должно быть указано если указан пользователь
      * @throws ConnectionManagerException
      * @return DB object
