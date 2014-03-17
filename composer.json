@@ -1,0 +1,26 @@
+{
+    "name": "dk547/Halo",
+    "description": "Yii additional classes for creating scaling web services",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vasily Bespalov",
+            "email": "vasilybs@gmail.com"
+        },
+        {
+            "name": "Alex Naumov",
+            "email": "pushok.leha@gmail.com"
+        }
+    ],
+
+    "require": {
+        "php": ">=5.4.0",
+        "guzzle/guzzle": "~3.7"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Halo\\": "Halo/"
+        }
+    }
+}
