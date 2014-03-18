@@ -103,7 +103,7 @@ class StatsLogCollector {
                 continue;
             }
 
-            Script::log("Processing file $work_filename , memory=".memory_get_peak_usage());
+            Cli\Script::log("Processing file $work_filename , memory=".memory_get_peak_usage());
 
             $data = [];
             while(!feof($fp)) {
