@@ -1,19 +1,24 @@
 <?php
 namespace Halo;
-use \Yii;
-use \CComponent;
-use \CDbException;
 
-class ConnectionManagerException extends CDbException {}
+class ConnectionManagerException extends \Exception {}
 
-class ConnectionManager extends CComponent
+/**
+ * Manage db connections
+ *
+ * @package Halo
+ * @author Vasily Bespalov
+ */
+class ConnectionManager
 {
     private $_connections = array(); // массив открытых коннекшенов
     private $_transactions = 0; // счетчик открытых транзакций
     private $_transactions_cache = array(); // массив аналогичный коннектам, в нем хранятся объекты транзакций для каждого коннекта
-    //
-    public function init(){}
 
+    /** @var Platform */
+    private $_platform = null;
+
+    //
     /**
      * Get connection to sql server with caching
      *
@@ -34,8 +39,7 @@ class ConnectionManager extends CComponent
         if (isset($this->_connections[$key]))
             return $this->_connections[$key];
 
-        /* @var $Platform Platform */
-        $Platform = Yii::app()->getComponent('platform');
+        $Platform = $this->_getPlatform();
         $connection_params = $Platform->getServerByName($server_name);
 
         if (empty($connection_params)) {
@@ -65,6 +69,14 @@ class ConnectionManager extends CComponent
         return $this->_connections[$key];
     }
 
+    protected function _getPlatform() {
+        if (!$this->_platform) {
+            $this->_platform = new Platform();
+            $this->_platform->init();
+        }
+        return $this->_platform;
+    }
+
     /**
      * Начинает транзакцию
      * Внимание! транзакции начинаются у всех открытых коннектов и у всех
@@ -73,8 +85,6 @@ class ConnectionManager extends CComponent
      * @throws ConnectionManagerException если не удалось
      */
     public function begin() {
-        //$e = new Exception();
-        //Script::log("connection manager BEGIN: ".$e->getTraceAsString());
         if ($this->_transactions++ == 0) {
             foreach($this->_connections as $key => $conn) {
                 $this->_transactions_cache[$key] = $conn->beginTransaction();
