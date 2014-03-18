@@ -1,6 +1,6 @@
 <?php
 namespace Halo;
-use \Script;
+use \Halo\Cli\Script;
 
 abstract class QueueProcessor {
 
