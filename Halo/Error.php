@@ -82,6 +82,7 @@ class Error {
             $res .= "{$t['function']}()\n";
             $data['trace'] .= $res;
         }
+
         if (\Yii::app()->stats instanceof Stats)
         {
             \Yii::app()->stats->log($data, 'errors/errors'.date('YmdH').'.log');
@@ -94,6 +95,7 @@ class Error {
                 ),
             ",E_USER_WARNING);
         }
+
     }
 
     public static function logException(\Exception $e) {

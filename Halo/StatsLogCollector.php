@@ -57,12 +57,12 @@ class StatsLogCollector {
      */
     public function run() {
         if (!is_dir($this->_dir)) {
-            $this->log('Incorrect directory '.$this->_dir, Cli\Script::ER_ERR);
+            Script::log('Incorrect directory '.$this->_dir, Script::ER_ERR);
             return false;
         }
 
         if (!($dh = opendir($this->_dir))) {
-            $this->log('Could not open directory '.$this->_dir, Cli\Script::ER_ERR);
+            Script::log('Could not open directory '.$this->_dir, Script::ER_ERR);
             return false;
         }
 
@@ -83,27 +83,27 @@ class StatsLogCollector {
                     continue;
                 }
                 if (!$this->_rename($filename, $work_filename)) {
-                    $this->log('Could not rename file '.$filename.' to work '.$work_filename, Cli\Script::ER_ERR);
+                    Script::log('Could not rename file '.$filename.' to work '.$work_filename, Script::ER_ERR);
                     continue;
                 }
             }
 
             if (!is_readable($work_filename)) {
-                $this->log('File '.$work_filename.' is not readable', Cli\Script::ER_ERR);
+                Script::log('File '.$work_filename.' is not readable', Script::ER_ERR);
                 continue;
             }
 
             if (!($fp = fopen($work_filename, 'r'))) {
-                $this->log('Could not open file for reading '.$work_filename, Cli\Script::ER_ERR);
+                Script::log('Could not open file for reading '.$work_filename, Script::ER_ERR);
                 continue;
             }
 
             if (!flock($fp, LOCK_EX)) {
-                $this->log('Could not get EX lock for '.$work_filename, Cli\Script::ER_ERR);
+                Script::log('Could not get EX lock for '.$work_filename, Script::ER_ERR);
                 continue;
             }
 
-            $this->log("Processing file $work_filename , memory=".memory_get_peak_usage(),Cli\Script::ER_OK);
+            Script::log("Processing file $work_filename , memory=".memory_get_peak_usage());
 
             $data = [];
             while(!feof($fp)) {
@@ -114,7 +114,7 @@ class StatsLogCollector {
                 if ($this->_json_auto) {
                     $row_data = json_decode($line, true);
                     if (!$row_data) {
-                        $this->log('Invalid JSON at '.$work_filename." line: ".$line, Cli\Script::ER_ERR);
+                        Script::log('Invalid JSON at '.$work_filename." line: ".$line, Script::ER_ERR);
                         continue 2;
                     }
 
@@ -127,7 +127,7 @@ class StatsLogCollector {
 
                 if (count($data) >= $this->_limit) {
                     if (!$this->_collect($data)) {
-                        $this->log("Could not collect data block", Cli\Script::ER_ERR);
+                        Script::log("Could not collect data block", Script::ER_ERR);
                         return false;
                     }
                     $data = [];
@@ -137,7 +137,7 @@ class StatsLogCollector {
             fclose($fp);
 
             if (!empty($data) && !$this->_collect($data)) {
-                $this->log("Could not collect data block 2", Cli\Script::ER_ERR);
+                Script::log("Could not collect data block 2", Script::ER_ERR);
                 return false;
             }
 
@@ -145,7 +145,7 @@ class StatsLogCollector {
             do {
                 $res = unlink($work_filename);
                 if (!$res) {
-                    $this->log("Could not unlink file $work_filename, try $i", Cli\Script::ER_ERR);
+                    Script::log("Could not unlink file $work_filename, try $i", Script::ER_ERR);
                     sleep(1);
                 }
             } while (!$res && $i++ < 5);
@@ -160,7 +160,7 @@ class StatsLogCollector {
                 'value' => $this->_stats['processed'],
                 'ts' => time(),
             ])])) {
-                $this->log("Error sending data to Graphite", Cli\Script::ER_ERR);
+                Script::log("Error sending data to Graphite", Script::ER_ERR);
             }
         }
 
@@ -171,8 +171,4 @@ class StatsLogCollector {
         return $this->_stats;
     }
 
-    public function log($message, $level)
-    {
-        Cli\Script::log($message, $level);
-    }
 }

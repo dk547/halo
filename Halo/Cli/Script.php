@@ -1,6 +1,8 @@
 <?php
 namespace Halo\Cli;
 use Halo\Error;
+use Halo\HaloBase;
+use Halo\iLoggerComponent;
 
 /**
  * Base class for creating cli scripts
@@ -11,7 +13,7 @@ use Halo\Error;
  */
 abstract class Script {
     // error levels
-    const ER_OK = 'OK';
+    const ER_OK  = 'OK';
     const ER_WRN = 'WRN';
     const ER_ERR = 'ERR';
 
@@ -43,7 +45,7 @@ abstract class Script {
      * @return string
      */
     protected function _getCliLockDir() {
-        throw new \Exception("Cli lock dir not configured");
+        return HaloBase::getInstance()->getScriptLockPath();
     }
 
     /**
@@ -64,7 +66,7 @@ abstract class Script {
             // шадоу копия. Ожидание освобождения основного лока
             while (!$this->_getLock(true)) {
                 if ($this->_debug_mode)
-                    self::log("Can't get lock. Sleep 3 seconds", self::ER_OK);
+                    self::log("Can't get lock. Sleep 3 seconds", iLoggerComponent::ER_OK);
                 sleep(3);
             }
             $this->_unLockShadow();
@@ -95,7 +97,7 @@ abstract class Script {
     {
         // проверяем вызывался ли метод init этого базового класса
         if (!$this->_initialized) {
-            self::log("Script should be initialized first! Call methods init()", self::ER_ERR);
+            self::log("Script should be initialized first! Call methods init()", iLoggerComponent::ER_ERR);
             exit;
         }
 
@@ -109,21 +111,9 @@ abstract class Script {
      * @param string $message
      * @param string $level on of Script::ER_xx
      */
-    static public function log($message, $level = self::ER_OK)
+    static public function log($message, $level = iLoggerComponent::ER_OK)
     {
-        if (php_sapi_name() == 'cli' && (!defined('ENV_TEST') || defined('SCRIPT_LOG_TESTS'))) {
-
-            if (self::$_showLog) {
-                echo date('Y-m-d H:i:s') . ' :: '.getmypid().' [' . $level . '] ' . $message . "\n";
-            }
-
-            if ($level == self::ER_ERR || $level == self::ER_WRN) {
-                $all_bt = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
-                $bt = array_pop($all_bt);
-                error_log(" [ ".$level." ] ". $message. " in ".$bt['file']. " on line ".$bt['line']);
-                Error::log($level, $message);
-            }
-        }
+        HaloBase::getInstance()->getLogger()->log($message, $level);
     }
 
     /**
@@ -132,7 +122,7 @@ abstract class Script {
     public function finish()
     {
         $this->_finished = true;
-        self::log('Successfully finished.', self::ER_OK);
+        self::log('Successfully finished.', iLoggerComponent::ER_OK);
         $this->_unlock();
     }
 
@@ -142,7 +132,7 @@ abstract class Script {
     public function failedScript($msg)
     {
         $this->_finished = true;
-        self::log('Script failed: '.$msg, self::ER_ERR);
+        self::log('Script failed: '.$msg, iLoggerComponent::ER_ERR);
         $this->_unlock();
         exit;
     }
@@ -165,7 +155,7 @@ abstract class Script {
                 self::log('Already blocked ' . $this->_script_name, self::ER_OK);
             }
             if ($result == Lock::FAILED) {
-                self::log('Can not get lock: lock dir ('.$this->_lock->locksDir.') doesn\'t exist, access rights issue etc. - ' . $this->_script_name, self::ER_ERR);
+                self::log('Can not get lock: lock dir ('.$this->_lock->locksDir.') doesn\'t exist, access rights issue etc. - ' . $this->_script_name, iLoggerComponent::ER_ERR);
             }
             if (!$return_false) {
                 exit();
@@ -203,7 +193,7 @@ abstract class Script {
         $result = $this->_lock->setLock($this->_script_name . '.shadow');
         if ($result == Lock::LOCKED) {
             if ($this->_debug_mode) {
-                self::log("Exit: lock file (" . $this->_script_name . '.shadow' . ") already exist!", self::ER_WRN);
+                self::log("Exit: lock file (" . $this->_script_name . '.shadow' . ") already exist!", iLoggerComponent::ER_WRN);
             }
             return false;
         }
@@ -237,18 +227,18 @@ abstract class Script {
 
     public static function showLogMessages()
     {
-        self::$_showLog = true;
+        HaloBase::getInstance()->getLogger()->showLogMessages();
     }
 
     public static function hideLogMessages()
     {
-        self::$_showLog = false;
+        HaloBase::getInstance()->getLogger()->hideLogMessages();
     }
 
     public function chunkItems(array $items, $size)
     {
         $packs = array_chunk($items, $size);
-        Script::log('Total ' . count($items) . ' items, in '.count($packs).' packs', Script::ER_OK);
+        self::log('Total ' . count($items) . ' items, in '.count($packs).' packs', iLoggerComponent::ER_OK);
         return $packs;
     }
 
