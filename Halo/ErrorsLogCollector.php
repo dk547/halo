@@ -24,7 +24,7 @@ class ErrorsLogCollector extends StatsLogCollector {
         while(1) {
             try {
                 $res = $Cmd->execute();
-            } catch (CDbException $e) {
+            } catch (\CDbException $e) {
                 if (isset($e->errorInfo[1]) &&  $e->errorInfo[1] == 1146) {
                     // таблицы нет
                     $Create = $Conn->createCommand(str_replace('#tablename#', $table_name, $create_sql));
@@ -53,16 +53,19 @@ class ErrorsLogCollector extends StatsLogCollector {
             ]);
         }
 
-        if (!Yii::app()->graphite->send($messages)) {
-            Script::log("Error sending data to Graphite", Script::ER_ERR);
-            return false;
+        // write to Graphite if need
+        if ($this->_graphite_prefix) {
+            if (!\Yii::app()->graphite->send($messages)) {
+                Script::log("Error sending data to Graphite", Script::ER_ERR);
+                return false;
+            }
         }
 
         // Сохраняем сами ошибки в базе данных
         // одна таблица в день
         $table_name = str_replace('#date#', date('Ymd'), DB_TABLE_ERROR_LOG);
 
-        $Conn = Yii::app()->connectionManager->get(SQL_NAME_LOGS);
+        $Conn = $this->getDbConnection();
 
         $insert_sql = "INSERT INTO ".$table_name." (created_ts, pid, `user`, host, code, request, message, trace)
             VALUES (".implode("),(", array_map(function($e) use ($Conn) {
@@ -82,6 +85,15 @@ class ErrorsLogCollector extends StatsLogCollector {
         $this->_insert($Conn, $table_name, $insert_sql, SQL_CREATE_ERROR_LOG);
 
         return true;
+    }
+
+    /**
+     * @return \Halo\DB
+     */
+
+    public function getDbConnection()
+    {
+        return \Yii::app()->connectionManager->get(SQL_NAME_LOGS);
     }
 
 }

@@ -155,7 +155,7 @@ class StatsLogCollector {
 
         // запишем статистику в графит если надо
         if ($this->_graphite_prefix) {
-            if (!Yii::app()->graphite->send([new GraphiteElement([
+            if (!\Yii::app()->graphite->send([new GraphiteElement([
                 'key' => $this->_graphite_prefix.'.processed',
                 'value' => $this->_stats['processed'],
                 'ts' => time(),
