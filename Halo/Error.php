@@ -96,7 +96,7 @@ class Error {
         }
     }
 
-    public static function logException(Exception $e) {
+    public static function logException(\Exception $e) {
         static::log('Exception', $e->getMessage(), [
             'backtrace' => $e->getTrace(),
         ]);

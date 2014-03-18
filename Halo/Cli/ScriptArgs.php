@@ -1,12 +1,10 @@
 <?php
-namespace Halo;
+namespace Halo\Cli;
 
 class ScriptsArgsException extends \Exception {};
 
-namespace Halo;
-
 /**
- * Класс для работы с опциями командной строки для CLI скриптов
+ * Command line arguments helper
  */
 class ScriptArgs {
 
@@ -14,8 +12,8 @@ class ScriptArgs {
 
     public function __construct() {
         $this->_options = getopt("", array(
-            "process-amount:", // всего процессов cli
-            "process-number:", // номер процесса cli
+            "process-amount:", // total processes cli
+            "process-number:", // number of current process cli
             "debug-mode",
             "shadow",
         ));

@@ -1,8 +1,13 @@
 <?php
+namespace Halo\Cli;
+use Halo\Error;
 
-namespace Halo;
 /**
- * Cli скрипт с защитой от повторных запусков
+ * Base class for creating cli scripts
+ * Implements protect from not intended parallel runs and master-shadow mode
+ * (after master termination shadow script run and continue processing)
+ *
+ * @author Vasily Bespalov
  */
 abstract class Script {
     // error levels
@@ -24,7 +29,7 @@ abstract class Script {
     public function __construct(array $params = array())
     {
         $this->_script_name = basename($_SERVER['SCRIPT_NAME']).'_'.md5(join(' ', $GLOBALS['argv']));
-        $this->_lock = new Lock();
+        $this->_lock = new Lock(isset($params['lockDir']) ? $params['lockDir'] : $this->_getCliLockDir());
         $this->_scriptargs = new ScriptArgs();
 
         $this->_use_shadow = !empty($params['use_shadow']) ? true : $this->_scriptargs->isShadowMode();
@@ -32,7 +37,17 @@ abstract class Script {
     }
 
     /**
-     * Инициализация скрипта
+     * Get the default dir for lock files
+     *
+     * @throws \Exception
+     * @return string
+     */
+    protected function _getCliLockDir() {
+        throw new \Exception("Cli lock dir not configured");
+    }
+
+    /**
+     * Initiating script
      */
     public function init()
     {
@@ -103,6 +118,9 @@ abstract class Script {
             }
 
             if ($level == self::ER_ERR || $level == self::ER_WRN) {
+                $all_bt = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
+                $bt = array_pop($all_bt);
+                error_log(" [ ".$level." ] ". $message. " in ".$bt['file']. " on line ".$bt['line']);
                 Error::log($level, $message);
             }
         }
@@ -236,7 +254,6 @@ abstract class Script {
 
     /**
      * Возвращает список аргументов командной строки
-     * @return ScriptArgs
      */
     public function getScriptArgs() {
         return $this->_scriptargs;
