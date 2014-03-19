@@ -61,7 +61,7 @@ abstract class QueueProcessor {
     ];
 
     ///
-    private $_db = null;
+    protected  $_db = null;
 
     public function __construct() {
 

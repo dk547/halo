@@ -3,7 +3,6 @@ namespace Halo\Cli;
 
 use Halo\Error;
 use Halo\HaloBase;
-use Halo\Log\LoggerInterface;
 use Halo\Log\LogLevel;
 
 /**
