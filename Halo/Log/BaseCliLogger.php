@@ -1,7 +1,7 @@
 <?php
 
 namespace Halo\Log;
-
+use Halo\Error;
 
 class BaseCliLogger implements LoggerInterface {
 
