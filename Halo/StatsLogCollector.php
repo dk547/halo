@@ -1,5 +1,8 @@
 <?php
 namespace Halo;
+
+use Halo\Cli\Script;
+
 class StatsLogCollector {
 
     // сколько записей вставляется в базу за один раз
