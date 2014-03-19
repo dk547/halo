@@ -8,6 +8,11 @@ abstract class ProviderAbstract {
 
     abstract protected function _auth();
 
+    /**
+     * Fetch contacts from mail provider
+     *
+     * @return array|boolean Format: [{name: , email: }, ..]
+     */
     abstract public function fetchContacts();
 
     public function __construct($login, $password) {
@@ -16,6 +21,6 @@ abstract class ProviderAbstract {
     }
 
     public function auth() {
-        $this->_auth();
+        return $this->_auth();
     }
 }
