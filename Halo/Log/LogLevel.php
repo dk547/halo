@@ -8,10 +8,10 @@ class LogLevel {
     const EMERGENCY = 'emergency';
     const ALERT     = 'alert';
     const CRITICAL  = 'critical';
-    const ERROR     = 'ERR';
-    const WARNING   = 'WRN';
+    const ERROR     = 'error';
+    const WARNING   = 'warning';
     const NOTICE    = 'notice';
-    const INFO      = 'OK';
+    const INFO      = 'info';
     const DEBUG     = 'debug';
 
 } 

@@ -120,7 +120,7 @@ abstract class Script {
                 echo date('Y-m-d H:i:s') . ' :: '.getmypid().' [' . $level . '] ' . $message . "\n";
             }
         }
-        HaloBase::getInstance()->getLogger()->log($message, self::ScriptLevelToLogLevel($level));
+        HaloBase::getInstance()->getLogger()->log(self::ScriptLevelToLogLevel($level),$message);
     }
 
     static protected function ScriptLevelToLogLevel($level)
