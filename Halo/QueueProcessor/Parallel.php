@@ -1,7 +1,8 @@
 <?php
-namespace Halo;
+namespace Halo\QueueProcessor;
+use Halo\QueueProcessor;
 
-class QueueProcessorParallel extends QueueProcessor {
+class Parallel extends QueueProcessor {
     protected $_process_number = 0;
     protected $_process_amount = 1;
 
