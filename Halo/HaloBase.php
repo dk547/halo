@@ -1,9 +1,11 @@
 <?php
 
 namespace Halo;
+use Halo\Log\BaseCliLogger;
+use Halo\Log\LoggerAwareInterface;
+use Halo\Log\LoggerInterface;
 
-
-class HaloBase {
+class HaloBase implements LoggerAwareInterface {
 
     protected static $_instance;
 
@@ -40,7 +42,7 @@ class HaloBase {
     }
 
 
-    public function setLogger( iLoggerComponent $logger )
+    public function setLogger( LoggerInterface $logger )
     {
         $this->params['logger'] = $logger;
         return $this;
@@ -48,13 +50,13 @@ class HaloBase {
 
 
     /**
-     * @return iLoggerComponent
+     * @return LoggerInterface
      */
     public function getLogger()
     {
         if (is_null($this->getParam('logger')))
         {
-            $this->setLogger(new CliStdoutLogger());
+            $this->setLogger(new BaseCliLogger());
         }
 
         return $this->getParam('logger');
