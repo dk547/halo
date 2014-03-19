@@ -1,13 +1,14 @@
 <?php
 namespace Halo;
-class Error {
+
+class Error
+{
     static public function code2str($code)
     {
         if (!is_numeric($code)) {
             return $code;
         }
-        switch($code)
-        {
+        switch ($code) {
             case E_ERROR: // 1 //
                 return 'E_ERROR';
             case E_WARNING: // 2 //
@@ -42,13 +43,15 @@ class Error {
         return "";
     }
 
-    public static function log($code, $message, array $params = []) {
+    public static function log($code, $message, array $params = [])
+    {
         $request = '';
         if (php_sapi_name() == 'cli') {
             $request = isset($_SERVER["SCRIPT_FILENAME"]) ? $_SERVER["SCRIPT_FILENAME"] : '';
         } else {
-            if(isset($_SERVER['REQUEST_URI']))
+            if (isset($_SERVER['REQUEST_URI'])) {
                 $request = $_SERVER['REQUEST_URI'];
+            }
         }
 
         $data = [
@@ -61,46 +64,45 @@ class Error {
             'trace' => '',
         ];
 
-        $trace = isset($params['backtrace']) ? $params['backtrace']: debug_backtrace();
+        $trace = isset($params['backtrace']) ? $params['backtrace'] : debug_backtrace();
 
         // skip the first 3 stacks as they do not tell the error position
-        if(count($trace) > 3) {
+        if (count($trace) > 3) {
             $trace = array_slice($trace, 3);
         }
 
-        foreach($trace as $i => $t) {
-            if(!isset($t['file']))
-                $t['file']='unknown';
-            if(!isset($t['line']))
-                $t['line']=0;
-            if(!isset($t['function']))
-                $t['function']='unknown';
+        foreach ($trace as $i => $t) {
+            if (!isset($t['file'])) {
+                $t['file'] = 'unknown';
+            }
+            if (!isset($t['line'])) {
+                $t['line'] = 0;
+            }
+            if (!isset($t['function'])) {
+                $t['function'] = 'unknown';
+            }
 
             $res = "#$i {$t['file']}({$t['line']}): ";
-            if(isset($t['object']) && is_object($t['object']))
-                $res .= get_class($t['object']).'->';
+            if (isset($t['object']) && is_object($t['object'])) {
+                $res .= get_class($t['object']) . '->';
+            }
             $res .= "{$t['function']}()\n";
             $data['trace'] .= $res;
         }
 
-        if (\Yii::app()->stats instanceof Stats)
-        {
-            \Yii::app()->stats->log($data, 'errors/errors'.date('YmdH').'.log');
+        if (HaloBase::getInstance()->getSendErrorsToStats()) {
+            \Yii::app()->stats->log($data, 'errors/errors' . date('YmdH') . '.log');
         }
-        else
-        {
-            trigger_error("for use Stats add in your config Stats component like this \n
-                'stats' => array(
-                    'class' => '\Halo\Stats'
-                ),
-            ",E_USER_WARNING);
-        }
-
     }
 
-    public static function logException(\Exception $e) {
-        static::log('Exception', $e->getMessage(), [
-            'backtrace' => $e->getTrace(),
-        ]);
+    public static function logException(\Exception $e)
+    {
+        static::log(
+            'Exception',
+            $e->getMessage(),
+            [
+                'backtrace' => $e->getTrace(),
+            ]
+        );
     }
 }

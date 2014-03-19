@@ -16,7 +16,8 @@ class Lock
     const OK = 3; // ok
     const OK_LAST_FAILED = 4; // ok, but last run was failed
 
-    public function __construct($lockDir) {
+    public function __construct($lockDir)
+    {
         $this->locksDir = $lockDir;
     }
 
@@ -24,7 +25,8 @@ class Lock
      * @param string $name Script name
      * @return int on of constants LOCKED etc
      */
-    public function setLock($name) {
+    public function setLock($name)
+    {
         if (!$this->_checkLocksDir()) {
             return self::FAILED;
         }
@@ -33,16 +35,14 @@ class Lock
 
         if (file_exists($lock_file)) {
             $this->_locks[$lock_file] = @fopen($lock_file, "r");
-            if ($this->_locks[$lock_file])
-            {
+            if ($this->_locks[$lock_file]) {
                 $result = $this->_addLock($this->_locks[$lock_file]);
-                return  (!$result) ? self::LOCKED : self::OK_LAST_FAILED;
+                return (!$result) ? self::LOCKED : self::OK_LAST_FAILED;
             }
         }
 
         $this->_locks[$lock_file] = @fopen($lock_file, "w");
-        if ($this->_locks[$lock_file])
-        {
+        if ($this->_locks[$lock_file]) {
             $result = $this->_addLock($this->_locks[$lock_file]);
             return (!$result) ? self::LOCKED : self::OK;
 
@@ -62,7 +62,7 @@ class Lock
         }
         $lock_file = $this->_getLockFile($name);
 
-        if(!isset ($this->_locks[$lock_file])) {
+        if (!isset ($this->_locks[$lock_file])) {
             //return false;
         }
         // For atomicity requirements of unlocking we remove lock-file firstly
@@ -83,7 +83,7 @@ class Lock
 
     private function _getLockFile($name)
     {
-        return $this->locksDir.'/'.$name.'.lock';
+        return $this->locksDir . '/' . $name . '.lock';
     }
 
     /**

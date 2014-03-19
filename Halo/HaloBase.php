@@ -1,25 +1,33 @@
 <?php
 
 namespace Halo;
+
 use Halo\Log\BaseCliLogger;
 use Halo\Log\LoggerAwareInterface;
 use Halo\Log\LoggerInterface;
 
-class HaloBase implements LoggerAwareInterface {
+class HaloBase implements LoggerAwareInterface
+{
 
     protected static $_instance;
 
-    protected $params = [];
+    protected $params = [
+        'logger' => null,
+        'path_to_lock_files' => null,
+        'send_errors_to_stats' => true,
+    ];
 
     private function __construct()
     {
 
     }
 
-    private function __clone(){
+    private function __clone()
+    {
     }
 
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (null === self::$_instance) {
             self::$_instance = new self();
         }
@@ -29,8 +37,7 @@ class HaloBase implements LoggerAwareInterface {
 
     protected function getParam($param_name)
     {
-        if(isset($this->params[$param_name]))
-        {
+        if (isset($this->params[$param_name])) {
             return $this->params[$param_name];
         }
         return null;
@@ -42,7 +49,7 @@ class HaloBase implements LoggerAwareInterface {
     }
 
 
-    public function setLogger( LoggerInterface $logger )
+    public function setLogger(LoggerInterface $logger)
     {
         $this->params['logger'] = $logger;
         return $this;
@@ -54,8 +61,7 @@ class HaloBase implements LoggerAwareInterface {
      */
     public function getLogger()
     {
-        if (is_null($this->getParam('logger')))
-        {
+        if (is_null($this->getParam('logger'))) {
             $this->setLogger(new BaseCliLogger());
         }
 
@@ -66,6 +72,19 @@ class HaloBase implements LoggerAwareInterface {
     {
         $this->params['path_to_lock_files'] = $path_to_lock_files;
         return $this;
+    }
+
+    public function getSendErrorsToStats()
+    {
+        return $this->getParam('send_errors_to_stats');
+    }
+
+    /**
+     * @param $v boolean
+     */
+    public function setSendErrorsToStats($v)
+    {
+        $this->params['send_errors_to_stats'] = boolval($v);
     }
 
 }

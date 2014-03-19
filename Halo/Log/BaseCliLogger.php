@@ -16,7 +16,6 @@ class BaseCliLogger implements LoggerInterface {
                 $bt = array_pop($all_bt);
 
                 error_log(" [ ".$level." ] ". $message. " in ".$bt['file']. " on line ".$bt['line']);
-                Error::log($level, $message);
             }
         }
     }

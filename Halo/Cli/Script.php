@@ -1,5 +1,6 @@
 <?php
 namespace Halo\Cli;
+
 use Halo\Error;
 use Halo\HaloBase;
 use Halo\Log\LoggerInterface;
@@ -12,9 +13,10 @@ use Halo\Log\LogLevel;
  *
  * @author Vasily Bespalov
  */
-abstract class Script {
+abstract class Script
+{
     // error levels
-    const ER_OK  = 'OK';
+    const ER_OK = 'OK';
     const ER_WRN = 'WRN';
     const ER_ERR = 'ERR';
 
@@ -31,7 +33,7 @@ abstract class Script {
 
     public function __construct(array $params = array())
     {
-        $this->_script_name = basename($_SERVER['SCRIPT_NAME']).'_'.md5(join(' ', $GLOBALS['argv']));
+        $this->_script_name = basename($_SERVER['SCRIPT_NAME']) . '_' . md5(join(' ', $GLOBALS['argv']));
         $this->_lock = new Lock(isset($params['lockDir']) ? $params['lockDir'] : $this->_getCliLockDir());
         $this->_scriptargs = new ScriptArgs();
 
@@ -45,7 +47,8 @@ abstract class Script {
      * @throws \Exception
      * @return string
      */
-    protected function _getCliLockDir() {
+    protected function _getCliLockDir()
+    {
         return HaloBase::getInstance()->getScriptLockPath();
     }
 
@@ -66,8 +69,9 @@ abstract class Script {
 
             // шадоу копия. Ожидание освобождения основного лока
             while (!$this->_getLock(true)) {
-                if ($this->_debug_mode)
+                if ($this->_debug_mode) {
                     self::log("Can't get lock. Sleep 3 seconds", self::ER_OK);
+                }
                 sleep(3);
             }
             $this->_unLockShadow();
@@ -79,7 +83,9 @@ abstract class Script {
     /**
      * Запускается перед выполнением process()
      */
-    public function preProcess() {}
+    public function preProcess()
+    {
+    }
 
     /**
      * Необходимо определить в наследнике. Основная логика скрипта
@@ -89,7 +95,9 @@ abstract class Script {
     /**
      * Запускается после выполнением process()
      */
-    public function postProcess() {}
+    public function postProcess()
+    {
+    }
 
     /**
      * запуск скрипта
@@ -117,10 +125,14 @@ abstract class Script {
         if (php_sapi_name() == 'cli' && (!defined('ENV_TEST') || defined('SCRIPT_LOG_TESTS'))) {
 
             if (self::$_showLog) {
-                echo date('Y-m-d H:i:s') . ' :: '.getmypid().' [' . $level . '] ' . $message . "\n";
+                echo date('Y-m-d H:i:s') . ' :: ' . getmypid() . ' [' . $level . '] ' . $message . "\n";
             }
         }
-        HaloBase::getInstance()->getLogger()->log(self::ScriptLevelToLogLevel($level),$message);
+        HaloBase::getInstance()->getLogger()->log(self::ScriptLevelToLogLevel($level), $message);
+
+        if ($level == self::ER_WRN || $level == self::ER_ERR) {
+            Error::log($level, $message);
+        }
     }
 
     static protected function ScriptLevelToLogLevel($level)
@@ -160,7 +172,7 @@ abstract class Script {
     public function failedScript($msg)
     {
         $this->_finished = true;
-        self::log('Script failed: '.$msg, self::ER_ERR);
+        self::log('Script failed: ' . $msg, self::ER_ERR);
         $this->_unlock();
         exit;
     }
@@ -183,7 +195,10 @@ abstract class Script {
                 self::log('Already blocked ' . $this->_script_name, self::ER_OK);
             }
             if ($result == Lock::FAILED) {
-                self::log('Can not get lock: lock dir ('.$this->_lock->locksDir.') doesn\'t exist, access rights issue etc. - ' . $this->_script_name, self::ER_ERR);
+                self::log(
+                    'Can not get lock: lock dir (' . $this->_lock->locksDir . ') doesn\'t exist, access rights issue etc. - ' . $this->_script_name,
+                    self::ER_ERR
+                );
             }
             if (!$return_false) {
                 exit();
@@ -224,8 +239,7 @@ abstract class Script {
                 self::log("Exit: lock file (" . $this->_script_name . '.shadow' . ") already exist!", self::ER_WRN);
             }
             return false;
-        }
-        elseif ($result == Lock::OK_LAST_FAILED) {
+        } elseif ($result == Lock::OK_LAST_FAILED) {
             //self::log("Last run was failed!", self::ER_WRN);
         }
         return true;
@@ -250,12 +264,12 @@ abstract class Script {
      */
     public static function clearConsole()
     {
-        print chr(27)."[H".chr(27)."[2J";
+        print chr(27) . "[H" . chr(27) . "[2J";
     }
 
     public static function showLogMessages()
     {
-       self::$_showLog = true;
+        self::$_showLog = true;
     }
 
     public static function hideLogMessages()
@@ -266,14 +280,15 @@ abstract class Script {
     public function chunkItems(array $items, $size)
     {
         $packs = array_chunk($items, $size);
-        self::log('Total ' . count($items) . ' items, in '.count($packs).' packs', self::ER_OK);
+        self::log('Total ' . count($items) . ' items, in ' . count($packs) . ' packs', self::ER_OK);
         return $packs;
     }
 
     /**
      * Возвращает список аргументов командной строки
      */
-    public function getScriptArgs() {
+    public function getScriptArgs()
+    {
         return $this->_scriptargs;
     }
 }
