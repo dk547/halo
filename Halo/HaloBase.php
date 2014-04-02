@@ -15,6 +15,7 @@ class HaloBase implements LoggerAwareInterface
         'logger' => null,
         'path_to_lock_files' => null,
         'send_errors_to_stats' => true,
+        'path_to_stats_log' => null,
     ];
 
     private function __construct()
@@ -85,6 +86,17 @@ class HaloBase implements LoggerAwareInterface
     public function setSendErrorsToStats($v)
     {
         $this->params['send_errors_to_stats'] = boolval($v);
+    }
+
+    public function getPathToStatsLog()
+    {
+        return $this->getParam('path_to_stats_log');
+    }
+
+    public function setPathToStatsLog($path_to_stats_log)
+    {
+        $this->params['path_to_stats_log']=$path_to_stats_log;
+        return $this;
     }
 
 }

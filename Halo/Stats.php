@@ -1,7 +1,13 @@
 <?php
 namespace Halo;
-class Stats extends \CComponent {
-    public function init() {}
+
+Use Halo\Cli\Script;
+
+class Stats extends \CComponent
+{
+    public function init()
+    {
+    }
 
     /**
      * Записывает строчку данных (преобразуя eе в json) в лог статистики для
@@ -12,8 +18,9 @@ class Stats extends \CComponent {
      * @param $filename string
      * @return bool
      */
-    public function log(array $info, $filename) {
-        $path = STATSLOG_PATH.'/'.$filename;
+    public function log(array $info, $filename)
+    {
+        $path = HaloBase::getInstance()->getPathToStatsLog() . '/' . $filename;
         $dir = dirname($path);
 
         if (!is_dir($dir)) {
@@ -26,7 +33,7 @@ class Stats extends \CComponent {
 
         $info['_ts'] = time();
 
-        error_log(json_encode($info)."\n", 3, $path);
+        error_log(json_encode($info) . "\n", 3, $path);
         return true;
     }
 
