@@ -16,6 +16,7 @@ class HaloBase implements LoggerAwareInterface
         'path_to_lock_files' => null,
         'send_errors_to_stats' => true,
         'path_to_stats_log' => null,
+        'sql_protocol' => 'mysql',
     ];
 
     private function __construct()
@@ -97,6 +98,17 @@ class HaloBase implements LoggerAwareInterface
     {
         $this->params['path_to_stats_log']=$path_to_stats_log;
         return $this;
+    }
+
+    /**
+     * @return string protocol for connection: mysql|pgsql
+     */
+    public function getSqlProtocol() {
+        return $this->getParam('sql_protocol');
+    }
+
+    public function setSqlProtocol($protocol) {
+        $this->params['sql_protocol'] = $protocol;
     }
 
 }

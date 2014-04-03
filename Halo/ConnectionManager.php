@@ -50,7 +50,7 @@ class ConnectionManager
             throw new ConnectionManagerException('parameter host not specified with server_name='.$server_name);
         }
 
-        $dsn = 'mysql:host='.$connection_params['host'];
+        $dsn = HaloBase::getInstance()->getSqlProtocol().':host='.$connection_params['host'];
 
         if (!empty($connection_params['port'])) {
             $dsn .= ':'.$connection_params['port'];
