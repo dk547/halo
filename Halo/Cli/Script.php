@@ -118,19 +118,20 @@ abstract class Script
      * Logging script messages
      * @param string $message
      * @param string $level on of Script::ER_xx
+     * @param string $context The calling context, for example "application.authorizer". Can be used for filtering logs
      */
-    static public function log($message, $level = self::ER_OK)
+    static public function log($message, $level = self::ER_OK, $context = '')
     {
         if (php_sapi_name() == 'cli' && (!defined('ENV_TEST') || defined('SCRIPT_LOG_TESTS'))) {
 
             if (self::$_showLog) {
-                echo date('Y-m-d H:i:s') . ' :: ' . getmypid() . ' [' . $level . '] ' . $message . "\n";
+                echo date('Y-m-d H:i:s') . ' :: ' . getmypid() . ' [' . $level . '] ['.$context.'] ' . $message . "\n";
             }
         }
-        HaloBase::getInstance()->getLogger()->log(self::ScriptLevelToLogLevel($level), $message);
+        HaloBase::getInstance()->getLogger()->log(self::ScriptLevelToLogLevel($level), $message, ['context' => $context]);
 
         if ($level == self::ER_WRN || $level == self::ER_ERR) {
-            Error::log($level, $message);
+            Error::log($level, $message, ['context' => $context]);
         }
     }
 

@@ -61,6 +61,7 @@ class Error
             'code' => self::code2str($code),
             'request' => $request,
             'message' => $message,
+            'context' => isset($params['context']) ? $params['context'] : '',
             'trace' => '',
         ];
 
