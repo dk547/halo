@@ -105,7 +105,7 @@ abstract class Script
     {
         // проверяем вызывался ли метод init этого базового класса
         if (!$this->_initialized) {
-            self::log("Script should be initialized first! Call methods init()", self::ER_ERR);
+            self::log("Script should be initialized first! Call method init()", self::ER_ERR);
             exit;
         }
 

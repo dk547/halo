@@ -18,6 +18,12 @@
         "guzzle/guzzle": "~3.7"
     },
 
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*",
+        "phpunit/phpunit-selenium": ">=1.2",
+        "phpunit/phpunit-story": "*"
+    },
+
     "autoload": {
         "psr-4": {
             "Halo\\": "Halo/"
