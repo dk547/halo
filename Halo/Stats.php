@@ -34,6 +34,9 @@ class Stats extends \CComponent
         $info['_ts'] = time();
 
         error_log(json_encode($info) . "\n", 3, $path);
+        if (file_exists($path)) {
+            chmod($path, 0664);
+        }
         return true;
     }
 
