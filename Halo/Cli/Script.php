@@ -125,7 +125,7 @@ abstract class Script
         if (php_sapi_name() == 'cli' && (!defined('ENV_TEST') || defined('SCRIPT_LOG_TESTS'))) {
 
             if (self::$_showLog) {
-                echo date('Y-m-d H:i:s') . ' :: ' . getmypid() . ' [' . $level . '] ['.$context.'] ' . $message . "\n";
+                error_log(date('Y-m-d H:i:s') . ' :: ' . getmypid() . ' [' . $level . '] ['.$context.'] ' . $message . "\n", 3, 'php://stdout');
             }
         }
         HaloBase::getInstance()->getLogger()->log(self::ScriptLevelToLogLevel($level), $message, ['context' => $context]);
