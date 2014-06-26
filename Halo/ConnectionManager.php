@@ -18,6 +18,10 @@ class ConnectionManager
     /** @var Platform */
     private $_platform = null;
 
+    // имя класса Наследника CDbConnection
+    // если не указано используется \Halo\DB
+    public $db_class = false;
+
     //
     /**
      * Get connection to sql server with caching
@@ -61,7 +65,12 @@ class ConnectionManager
             $passwd = $connection_params['pass'];
         }
 
-        $this->_connections[$key] = new DB($dsn, $user, $passwd);
+        if (!$this->db_class) {
+            $this->_connections[$key] = new DB($dsn, $user, $passwd);
+        } else {
+            $classname = $this->db_class;
+            $this->_connections[$key] = new $classname($dsn, $user, $passwd);
+        }
 
         if ($this->_transactions > 0) {
             $this->_transactions_cache[$key] = $this->_connections[$key]->beginTransaction();
