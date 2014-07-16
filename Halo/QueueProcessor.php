@@ -227,7 +227,6 @@ abstract class QueueProcessor {
         $sql = $this->_getSqlSelect($from, $limit);
         $cmd = $this->getDbConnection()->createCommand($sql);
         $res = $cmd->queryAll(true);
-        Script::log("fetched next data from=$from limit=$limit, rows=".count($res));
         return $res;
     }
 
@@ -251,10 +250,10 @@ abstract class QueueProcessor {
     protected function _moveToErrors(array $row, $purged = false)
     {
         if (!$purged) {
-            Script::log("Record could not be processed. Removed. ".print_r($row, true), Script::ER_WRN);
+            Script::log("Record could not be processed. Removed. ".print_r($row, true));
             $this->_delete([$row['id']]);
         } else {
-            Script::log("Record is removing because purge timeout. ".print_r($row, true), Script::ER_WRN);
+            Script::log("Record is removing because purge timeout. ".print_r($row, true));
             $this->_delete([$row['id']], false);
         }
     }
