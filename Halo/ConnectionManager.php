@@ -156,4 +156,18 @@ class ConnectionManager
         $this->_connections = array();
         $this->_transactions_cache = array();
     }
+
+    /**
+     * Close connection
+     *
+     * @param DB $conn
+     */
+    public function closeConnection($conn) {
+        foreach($this->_connections as $key => $c) {
+            if ($c == $conn) {
+                $conn->closeConnection();
+                unset($this->_connections[$key]);
+            }
+        }
+    }
 }
