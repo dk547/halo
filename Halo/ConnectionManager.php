@@ -14,6 +14,7 @@ class ConnectionManager
     private $_connections = array(); // массив открытых коннекшенов
     private $_transactions = 0; // счетчик открытых транзакций
     private $_transactions_cache = array(); // массив аналогичный коннектам, в нем хранятся объекты транзакций для каждого коннекта
+    protected $_callbacks = [];
 
     /** @var Platform */
     private $_platform = null;
@@ -21,6 +22,10 @@ class ConnectionManager
     // имя класса Наследника CDbConnection
     // если не указано используется \Halo\DB
     public $db_class = false;
+
+    const EVENT_AFTER_BEGIN_TRANSACTION = 'begin';
+    const EVENT_AFTER_COMMIT_TRANSACTION = 'commit';
+    const EVENT_AFTER_ROLLBACK_TRANSACTION = 'rollback';
 
     //
     /**
@@ -98,6 +103,7 @@ class ConnectionManager
             foreach($this->_connections as $key => $conn) {
                 $this->_transactions_cache[$key] = $conn->beginTransaction();
             }
+            $this->_processEvent(self::EVENT_AFTER_BEGIN_TRANSACTION);
         }
         return true;
     }
@@ -111,6 +117,7 @@ class ConnectionManager
                 foreach($this->_transactions_cache as $key => $trans) {
                     $trans->commit();
                 }
+                $this->_processEvent(self::EVENT_AFTER_COMMIT_TRANSACTION);
                 $this->_transactions_cache = array();
             }
         }
@@ -126,6 +133,7 @@ class ConnectionManager
             foreach ($this->_transactions_cache as $key => $trans) {
                 $trans->rollback();
             }
+            $this->_processEvent(self::EVENT_AFTER_ROLLBACK_TRANSACTION);
             $this->_transactions_cache = array();
         }
         return true;
@@ -167,6 +175,41 @@ class ConnectionManager
             if ($c == $conn) {
                 $conn->closeConnection();
                 unset($this->_connections[$key]);
+            }
+        }
+    }
+
+    public function getOpenTransactions() {
+        return $this->_transactions;
+    }
+
+    /**
+     * @param $event
+     * @param callable $callback
+     */
+    public function registerCallback($event, callable $callback) {
+        if (!isset($this->_callbacks[$event])) {
+            $this->_callbacks[$event] = [];
+        }
+        $this->_callbacks[$event][] = $callback;
+    }
+
+    public function unregisterCallback(callable $callback) {
+        foreach ($this->_callbacks as $name => $list) {
+            if (is_array($list)) {
+                foreach($list as $k => $func) {
+                    if ($func == $callback) {
+                        unset($this->_callbacks[$name][$k]);
+                    }
+                }
+            }
+        }
+    }
+
+    protected function _processEvent($name) {
+        if (isset($this->_callbacks[$name])) {
+            foreach($this->_callbacks[$name] as $func) {
+                call_user_func($func);
             }
         }
     }
