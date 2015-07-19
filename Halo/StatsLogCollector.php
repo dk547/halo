@@ -118,7 +118,7 @@ class StatsLogCollector {
                     $row_data = json_decode($line, true);
                     if (!$row_data) {
                         Script::log('Invalid JSON at '.$work_filename." line: ".$line, Script::ER_ERR);
-                        continue 2;
+                        continue;
                     }
 
                     $data[] = $row_data;
