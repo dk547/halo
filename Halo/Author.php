@@ -6,6 +6,8 @@ class Author {
 
     /**
      * Return author name or false
+     *
+     * @return string
      */
     static public function get() {
         if (!is_null(self::$_author)) {
@@ -26,5 +28,14 @@ class Author {
 
         self::$_author = $mReturn;
         return self::$_author;
+    }
+
+    /**
+     * Sets the new author
+     *
+     * @param $author string
+     */
+    static public function set($author) {
+        static::$_author = $author;
     }
 }
