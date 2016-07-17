@@ -15,7 +15,7 @@
 
     "require": {
         "php": ">=5.4.0",
-        "guzzle/guzzle": "~3.7"
+        "guzzlehttp/guzzle" : "v6.2.0"
     },
 
     "require-dev": {
