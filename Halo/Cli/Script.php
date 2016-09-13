@@ -175,7 +175,7 @@ abstract class Script
         $this->_finished = true;
         self::log('Script failed: ' . $msg, self::ER_ERR);
         $this->_unlock();
-        exit;
+        exit(1);
     }
 
     // private functions
