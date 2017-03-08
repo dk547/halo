@@ -15,6 +15,7 @@ class ConnectionManager
     private $_transactions = 0; // счетчик открытых транзакций
     private $_transactions_cache = array(); // массив аналогичный коннектам, в нем хранятся объекты транзакций для каждого коннекта
     protected $_callbacks = [];
+    protected $_charset; // default charset SET NAMES xxx
 
     /** @var Platform */
     private $_platform = null;
@@ -75,6 +76,10 @@ class ConnectionManager
         } else {
             $classname = $this->db_class;
             $this->_connections[$key] = new $classname($dsn, $user, $passwd);
+        }
+
+        if (!is_null($this->_charset)) {
+            $this->_connections[$key]->charset = $this->_charset;
         }
 
         if ($this->_transactions > 0) {
