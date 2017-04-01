@@ -101,8 +101,9 @@ class StatsLogCollector {
                 continue;
             }
 
-            if (!flock($fp, LOCK_EX)) {
-                Script::log('Could not get EX lock for '.$work_filename, Script::ER_ERR);
+            if (!flock($fp, LOCK_EX | LOCK_NB)) {
+                fclose($fp);
+                Script::log('Could not get EX lock for '.$work_filename);
                 continue;
             }
 
