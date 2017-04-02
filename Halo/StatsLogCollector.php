@@ -105,6 +105,8 @@ class StatsLogCollector {
                     Script::log('Could not rename file '.$work_filename.' to new '.$new_filename, Script::ER_ERR);
                     continue;
                 }
+
+                $work_filename = $new_filename;
             }
 
             Script::log("Processing file $work_filename , memory=".memory_get_peak_usage());
