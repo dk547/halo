@@ -76,20 +76,7 @@ class StatsLogCollector {
                 continue;
             }
 
-            if (preg_match('/\.work$/', $file)) {
-                $work_filename = $this->_dir.$file;
-            }
-            else {
-                $filename = $this->_dir.$file;
-                $work_filename = $filename.'.work';
-                if (file_exists($work_filename)) {
-                    continue;
-                }
-                if (!$this->_rename($filename, $work_filename)) {
-                    Script::log('Could not rename file '.$filename.' to work '.$work_filename, Script::ER_ERR);
-                    continue;
-                }
-            }
+            $work_filename = $this->_dir.$file;
 
             if (!is_readable($work_filename)) {
                 Script::log('File '.$work_filename.' is not readable', Script::ER_ERR);
@@ -105,6 +92,19 @@ class StatsLogCollector {
                 fclose($fp);
                 Script::log('Could not get EX lock for '.$work_filename);
                 continue;
+            }
+
+            if (!preg_match('/\.work$/', $file)) {
+                $new_filename = $work_filename.'.work';
+                if (file_exists($new_filename)) {
+                    fclose($fp);
+                    continue;
+                }
+                if (!$this->_rename($work_filename, $new_filename)) {
+                    fclose($fp);
+                    Script::log('Could not rename file '.$work_filename.' to new '.$new_filename, Script::ER_ERR);
+                    continue;
+                }
             }
 
             Script::log("Processing file $work_filename , memory=".memory_get_peak_usage());
