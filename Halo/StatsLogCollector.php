@@ -78,6 +78,11 @@ class StatsLogCollector {
 
             $work_filename = $this->_dir.$file;
 
+            if (!file_exists($work_filename)) {
+                Script::log('File '.$work_filename.' is not exists anymore; processed by another worker?');
+                continue;
+            }
+
             if (!is_readable($work_filename)) {
                 Script::log('File '.$work_filename.' is not readable', Script::ER_ERR);
                 continue;
