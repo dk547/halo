@@ -78,6 +78,8 @@ class StatsLogCollector {
 
             $work_filename = $this->_dir.$file;
 
+            Script::log("trying file $work_filename");
+
             if (!file_exists($work_filename)) {
                 Script::log('File '.$work_filename.' is not exists anymore; processed by another worker?');
                 continue;
@@ -88,20 +90,34 @@ class StatsLogCollector {
                 continue;
             }
 
-            if (!($fp = fopen($work_filename, 'r'))) {
-                Script::log('Could not open file for reading '.$work_filename, Script::ER_ERR);
-                continue;
-            }
+            // race condition workaround
+            // http://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
+            while(1) {
+                if (!($fp = fopen($work_filename, 'r'))) {
+                    Script::log('Could not open file for reading '.$work_filename, Script::ER_ERR);
+                    continue 2;
+                }
 
-            if (!flock($fp, LOCK_EX | LOCK_NB)) {
+                if (!flock($fp, LOCK_EX | LOCK_NB)) {
+                    fclose($fp);
+                    Script::log('Could not get EX lock for ' . $work_filename);
+                    continue 2;
+                }
+
+                $res = fstat($fp);
+                $res2 = stat($work_filename);
+                if ($res['ino'] == $res2['ino']) {
+                    break;
+                }
+
                 fclose($fp);
-                Script::log('Could not get EX lock for '.$work_filename);
-                continue;
             }
 
             if (!preg_match('/\.work$/', $file)) {
                 $new_filename = $work_filename.'.work';
+                //Script::log("trying rename $work_filename to $new_filename");
                 if (file_exists($new_filename)) {
+                    //Script::log("$new_filename already exists");
                     fclose($fp);
                     continue;
                 }
@@ -112,6 +128,7 @@ class StatsLogCollector {
                 }
 
                 $work_filename = $new_filename;
+                //Script::log("renamed to $work_filename");
             }
 
             Script::log("Processing file $work_filename , memory=".memory_get_peak_usage());
@@ -139,27 +156,30 @@ class StatsLogCollector {
                 if (count($data) >= $this->_limit) {
                     if (!$this->_collect($data)) {
                         Script::log("Could not collect data block", Script::ER_ERR);
+                        fclose($fp);
                         return false;
                     }
                     $data = [];
                 }
             }
 
-            fclose($fp);
-
             if (!empty($data) && !$this->_collect($data)) {
                 Script::log("Could not collect data block 2", Script::ER_ERR);
+                fclose($fp);
                 return false;
             }
 
             $i = 0;
             do {
+                Script::log("trying to unlink $work_filename");
                 $res = unlink($work_filename);
                 if (!$res) {
                     Script::log("Could not unlink file $work_filename, try $i", Script::ER_ERR);
                     sleep(1);
                 }
             } while (!$res && $i++ < 5);
+
+            fclose($fp);
 
             unset($content);
         }
