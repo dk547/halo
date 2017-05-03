@@ -62,8 +62,12 @@ class ConnectionManager
 
         $dsn = HaloBase::getInstance()->getSqlProtocol().':host='.$connection_params['host'];
 
+        if (empty($connection_params['port']) && defined('WEB_SQL_PORT')) {
+            $connection_params['port'] = WEB_SQL_PORT;
+        }
+
         if (!empty($connection_params['port'])) {
-            $dsn .= ':'.$connection_params['port'];
+            $dsn .= ';port='.$connection_params['port'];
         }
 
         if (!$user) {
