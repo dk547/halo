@@ -41,6 +41,9 @@ class Platform extends \CComponent
             // дефолтный пароль и юзер
             $server['pass'] = empty($server['pass'])?WEB_SQL_PASS:$server['pass'];
             $server['user'] = empty($server['user'])?WEB_SQL_USER:$server['user'];
+            if (defined('WEB_SQL_PORT')) {
+                $server['port'] = empty($server['port']) ? WEB_SQL_PORT : $server['port'];
+            }
             return $server;
         }
 
