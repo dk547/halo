@@ -29,7 +29,7 @@ class ConnectionManager
     const EVENT_AFTER_ROLLBACK_TRANSACTION = 'rollback';
     const EVENT_AFTER_EACH_BEGIN_TRANSACTION = 'each_begin';
     const EVENT_AFTER_EACH_COMMIT_TRANSACTION = 'each_commit';
-    const EVENT_AFTER_EACH_ROLLBACK_TRANSACTION = 'each_commit';
+    const EVENT_AFTER_EACH_ROLLBACK_TRANSACTION = 'each_rollback';
 
     //
     /**
