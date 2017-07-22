@@ -27,6 +27,9 @@ class ConnectionManager
     const EVENT_AFTER_BEGIN_TRANSACTION = 'begin';
     const EVENT_AFTER_COMMIT_TRANSACTION = 'commit';
     const EVENT_AFTER_ROLLBACK_TRANSACTION = 'rollback';
+    const EVENT_AFTER_EACH_BEGIN_TRANSACTION = 'each_begin';
+    const EVENT_AFTER_EACH_COMMIT_TRANSACTION = 'each_commit';
+    const EVENT_AFTER_EACH_ROLLBACK_TRANSACTION = 'each_commit';
 
     //
     /**
@@ -110,7 +113,13 @@ class ConnectionManager
     public function begin() {
         if ($this->_transactions++ == 0) {
             foreach($this->_connections as $key => $conn) {
+                $begin_ts = microtime(true);
                 $this->_transactions_cache[$key] = $conn->beginTransaction();
+                $end_ts = microtime(true);
+                $this->_processEvent(self::EVENT_AFTER_EACH_BEGIN_TRANSACTION, [
+                    'conn' => $conn,
+                    'seconds' => $end_ts - $begin_ts,
+                ]);
             }
             $this->_processEvent(self::EVENT_AFTER_BEGIN_TRANSACTION);
         }
@@ -124,7 +133,13 @@ class ConnectionManager
         if ($this->_transactions > 0) {
             if (--$this->_transactions == 0) {
                 foreach($this->_transactions_cache as $key => $trans) {
+                    $begin_ts = microtime(true);
                     $trans->commit();
+                    $end_ts = microtime(true);
+                    $this->_processEvent(self::EVENT_AFTER_EACH_COMMIT_TRANSACTION, [
+                        'conn' => $trans,
+                        'seconds' => $end_ts - $begin_ts,
+                    ]);
                 }
                 $this->_processEvent(self::EVENT_AFTER_COMMIT_TRANSACTION);
                 $this->_transactions_cache = array();
@@ -140,7 +155,13 @@ class ConnectionManager
         if ($this->_transactions > 0) {
             $this->_transactions = 0;
             foreach ($this->_transactions_cache as $key => $trans) {
+                $begin_ts = microtime(true);
                 $trans->rollback();
+                $end_ts = microtime(true);
+                $this->_processEvent(self::EVENT_AFTER_EACH_ROLLBACK_TRANSACTION, [
+                    'conn' => $trans,
+                    'seconds' => $end_ts - $begin_ts,
+                ]);
             }
             $this->_processEvent(self::EVENT_AFTER_ROLLBACK_TRANSACTION);
             $this->_transactions_cache = array();
@@ -215,10 +236,10 @@ class ConnectionManager
         }
     }
 
-    protected function _processEvent($name) {
+    protected function _processEvent($name, array $params = []) {
         if (isset($this->_callbacks[$name])) {
             foreach($this->_callbacks[$name] as $func) {
-                call_user_func($func);
+                call_user_func_array($func, $params);
             }
         }
     }

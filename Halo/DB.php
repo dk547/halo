@@ -8,7 +8,17 @@ class DB extends \CDbConnection
     public $enableProfiling = true;
     //public $schemaCachingDuration = 10000000;
 
+    public $host = 'undefined';
+
     public $name = null;
+
+    public function __construct($dsn='',$username='',$password='') {
+        parent::__construct($dsn, $username, $password);
+        $matches = [];
+        if (preg_match('/host=([^:\s]+)/', $dsn, $matches)) {
+            $this->host = $matches[1];
+        }
+    }
 
     public function createCommand($query=null)
     {
