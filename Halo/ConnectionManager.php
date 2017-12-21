@@ -213,6 +213,16 @@ class ConnectionManager
         return $this->_transactions;
     }
 
+    public function reconnectAll() {
+        if (empty($this->_connections)) {
+            return;
+        }
+        foreach($this->_connections as $key => $conn) {
+            $conn->setActive(false);
+            $conn->setActive(true);
+        }
+    }
+
     /**
      * @param $event
      * @param callable $callback
