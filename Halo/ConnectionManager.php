@@ -63,7 +63,12 @@ class ConnectionManager
             throw new ConnectionManagerException('parameter host not specified with server_name='.$server_name);
         }
 
-        $dsn = HaloBase::getInstance()->getSqlProtocol().':host='.$connection_params['host'];
+        $protocol = HaloBase::getInstance()->getSqlProtocol();
+        if (!empty($connection_params['protocol'])) {
+            $protocol = $connection_params['protocol'];
+        }
+
+        $dsn = $protocol.':host='.$connection_params['host'];
 
         if (empty($connection_params['port']) && defined('WEB_SQL_PORT')) {
             $connection_params['port'] = WEB_SQL_PORT;
