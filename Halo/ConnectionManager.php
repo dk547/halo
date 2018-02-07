@@ -90,8 +90,20 @@ class ConnectionManager
             $this->_connections[$key] = new $classname($dsn, $user, $passwd);
         }
 
+        $charset = null;
         if (!is_null($this->_charset)) {
-            $this->_connections[$key]->charset = $this->_charset;
+            $charset = $this->_charset;
+        }
+        if (isset($connection_params['charset'])) {
+            if (empty($connection_params['charset'])) {
+                $charset = null;
+            } else {
+                $charset = $connection_params['charset'];
+            }
+        }
+
+        if (!is_null($charset)) {
+            $this->_connections[$key]->charset = $charset;
         }
 
         if ($this->_transactions > 0) {
