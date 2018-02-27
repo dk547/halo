@@ -78,6 +78,10 @@ class ConnectionManager
             $dsn .= ';port='.$connection_params['port'];
         }
 
+        if (!empty($connection_params['dbname'])) {
+            $dsn .= ';dbname='.$connection_params['dbname'];
+        }
+
         if (!$user) {
             $user = $connection_params['user'];
             $passwd = $connection_params['pass'];
