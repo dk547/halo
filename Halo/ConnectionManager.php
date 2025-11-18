@@ -270,7 +270,7 @@ class ConnectionManager
     protected function _processEvent($name, array $params = []) {
         if (isset($this->_callbacks[$name])) {
             foreach($this->_callbacks[$name] as $func) {
-                call_user_func_array($func, $params);
+                call_user_func_array($func, array_values($params));
             }
         }
     }
