@@ -76,7 +76,7 @@ abstract class Script
             $this->_unLockShadow();
         }
 
-        self::log('Started', self::ER_OK);
+        self::log('Started (author: '.\Halo\Author::get().')', self::ER_OK);
     }
 
     /**
@@ -122,7 +122,7 @@ abstract class Script
      */
     static public function log($message, $level = self::ER_OK, $context = '')
     {
-        if (php_sapi_name() == 'cli' && (!defined('ENV_TEST') || defined('SCRIPT_LOG_TESTS'))) {
+        if (php_sapi_name() == 'cli' && (!defined('ENV_TEST') || defined('SCRIPT_LOG_TESTS') || getenv('SCRIPT_LOG_TESTS'))) {
 
             if (self::$_showLog) {
                 list($usec, $sec) = explode(" ", microtime());
